@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="icon" href="site-icon.png" type="image/png">
+    <title>Get Better Soon</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        #videoElement {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+    </style>
+    <script>
+        $(document).ready(function() {
+            var video = document.getElementById('videoElement');
+            var lastInteractionX = 0;
+            var lastMouseMoveTime = new Date().getTime();
+            var isInteracting = false;
+
+            function checkStillness() {
+                if (new Date().getTime() - lastMouseMoveTime > 1000) {
+                    video.pause();
+                }
+            }
+
+            function handleInteraction(x) {
+                if (Math.abs(x - lastInteractionX) > 10) {
+                    var timV = video.duration;
+                    var valV = (timV * x / $(window).width());
+                    video.currentTime = valV;
+                    lastInteractionX = x;
+                    isInteracting = true;
+                    lastMouseMoveTime = new Date().getTime();
+                } else {
+                    isInteracting = false;
+                }
+            }
+
+            $(document).mousemove(function(e) {
+                handleInteraction(e.pageX);
+            });
+
+            $(document).on('touchmove', function(e) {
+                var touch = e.touches[0];
+                handleInteraction(touch.pageX);
+            });
+
+            $(document).mouseout(function() {
+                video.pause();
+            });
+
+            $(document).mouseover(function() {
+                video.play();
+            });
+
+            $(document).on('touchend', function() {
+                setTimeout(function() {
+                    if (!isInteracting) {
+                        video.pause();
+                    }
+                }, 1000);
+            });
+
+            setInterval(checkStillness, 1000);
+        });
+    </script>
+</head>
+<body>
+    <video id="videoElement" autoplay="autoplay" muted="muted" loop="loop">
+        <source src="m2-res_720p.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+</body>
+</html>
